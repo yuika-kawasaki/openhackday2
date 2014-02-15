@@ -33,6 +33,7 @@ public class UlsayActivity extends Activity {
 	private Button mSayButton;
 	private String mData;
 	private ListView mListView;
+	private ArrayList<NewsCardData> mNewsData;
 
 	public String getData() {
 		return mData;
@@ -53,11 +54,8 @@ public class UlsayActivity extends Activity {
 		mSayButton = (Button) findViewById(R.id.sayButton);
 		mSayButton.setVisibility(View.INVISIBLE);
 
-		// ニュースデータ作る(今回は仮)
+		// ニュースデータを取ってきて表示する
 		getNewsRSS();
-//		ArrayList<NewsCardData> newsData = getNewsData();
-		// リストにアダプターをセット
-//		setCards(newsData);
 
 		// 記事タップでSayボタン表示
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -91,51 +89,10 @@ public class UlsayActivity extends Activity {
 	public void setCards(ArrayList<NewsCardData> newsData) {
 		NewsCardAdapter adapter = new NewsCardAdapter(this, 0, newsData);
 		mListView.setAdapter(adapter);
-	}
-
-	private ArrayList<NewsCardData> getNewsData() {
-
-		ArrayList<NewsCardData> newsData = new ArrayList<NewsCardData>();
-
-		Bitmap img;
-		img = BitmapFactory.decodeResource(getResources(), R.drawable.sample);
-
-		NewsCardData item = new NewsCardData();
-		item.setTitle("いいえ、ためふさのせいです。");
-		item.setImg(img);
-		newsData.add(item);
-
-		NewsCardData item1 = new NewsCardData();
-		item1.setTitle("川崎結花氏による東京ドーム年越しライブ");
-		item1.setImg(img);
-		newsData.add(item1);
-
-		NewsCardData item2 = new NewsCardData();
-		item2.setTitle("浦添さん あまりのメガホン音量に激怒");
-		item2.setImg(img);
-		newsData.add(item2);
-
-		NewsCardData item3 = new NewsCardData();
-		item3.setTitle("いいえ、ためふさのせいです。");
-		item3.setImg(img);
-		newsData.add(item3);
-
-		NewsCardData item4 = new NewsCardData();
-		item4.setTitle("川崎結花氏による東京ドーム年越しライブ");
-		item4.setImg(img);
-		newsData.add(item4);
-
-		NewsCardData item5 = new NewsCardData();
-		item5.setTitle("浦添さん あまりのメガホン音量に激怒");
-		item5.setImg(img);
-		newsData.add(item5);
-
-		return newsData;
+		mNewsData = newsData;
 	}
 
 	private void getNewsRSS() {
-
-		ArrayList<NewsCardData> newsData = new ArrayList<NewsCardData>();
 		GetNewsTask getNewsTask = new GetNewsTask(this);
 		getNewsTask.execute();
 	}
@@ -148,9 +105,21 @@ public class UlsayActivity extends Activity {
 	}
 
 	public void onClickSayButton(View view) {
-		Toast.makeText(this, "SAY!!!!!num=" + mCardId, Toast.LENGTH_LONG)
+
+		NewsCardData card = mNewsData.get(mCardId);
+		Log.d("ulsay", "title:" + card.getTitle());
+		Toast.makeText(this, "SAY!" + card.getTitle(), Toast.LENGTH_LONG)
 				.show();
 		mSayButton.setVisibility(View.INVISIBLE);
+		SayTask sayTask = new SayTask(this);
+		sayTask.execute(card.getTitle());
+	}
+
+	public void completeSay() {
+		NewsCardData card = mNewsData.get(mCardId);
+		Toast.makeText(this, "Said:" + card.getTitle(), Toast.LENGTH_LONG)
+		.show();
+		mCardId=0;
 	}
 
 }
