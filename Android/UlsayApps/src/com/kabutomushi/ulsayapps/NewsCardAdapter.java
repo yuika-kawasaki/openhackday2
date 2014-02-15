@@ -8,28 +8,32 @@ import android.widget.TextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 public class NewsCardAdapter extends ArrayAdapter<NewsCardData> {
 	private LayoutInflater layoutInflater;
+	private int mLastAnimationPosition = 0;
+	private Context mContext;
 
 	public NewsCardAdapter(Context context, int textViewResourceId,
 			List<NewsCardData> objects) {
 		super(context, textViewResourceId, objects);
 		layoutInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mContext = context;
+		
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// 特定の行(position)のデータを得る
 		NewsCardData item = (NewsCardData) getItem(position);
 
-		// convertViewは使い回しされている可能性があるのでnullの時だけ新しく作る
 		if (null == convertView) {
 			convertView = layoutInflater.inflate(R.layout.news_card, null);
 		}
 
-		// CustomDataのデータをViewの各Widgetにセットする
+		//データ入れる
 		ImageView imageView;
 		imageView = (ImageView) convertView.findViewById(R.id.newsISmage);
 		imageView.setImageBitmap(item.getImg());
@@ -37,6 +41,14 @@ public class NewsCardAdapter extends ArrayAdapter<NewsCardData> {
 		TextView textView;
 		textView = (TextView) convertView.findViewById(R.id.newsTitle);
 		textView.setText(item.getTitle());
+
+		// アニメーションを設定
+		if (mLastAnimationPosition < position) {
+			Animation animation = AnimationUtils.loadAnimation(mContext,
+					R.anim.motion);
+			convertView.startAnimation(animation);
+			mLastAnimationPosition = position;
+		}
 
 		return convertView;
 	}
